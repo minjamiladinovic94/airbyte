@@ -343,6 +343,114 @@ public class BufferedRecordsTest {
 
 	    assertEquals(Collections.singletonList(recordA), buffer.flush());
   }
+	
+	 @Test
+  public void insertThenDeleteWithSchemaThenInsertInBatchFlush() throws SQLException {
+	    props.put("delete.enabled", true);
+	    props.put("insert.mode", "upsert");
+	    props.put("pk.mode", "record_key");
+	    final JdbcSinkConfig config = new JdbcSinkConfig(props);
+
+	    final String url = sqliteHelper.sqliteUri();
+	    final DatabaseDialect dbDialect = DatabaseDialects.findBestFor(url, config);
+	    final DbStructure dbStructure = new DbStructure(dbDialect);
+
+	    final TableId tableId = new TableId(null, null, "dummy");
+	    final BufferedRecords buffer = new BufferedRecords(config, tableId, dbDialect, dbStructure, sqliteHelper.connection);
+
+	    final Schema keySchemaA = SchemaBuilder.struct()
+	        .field("id", Schema.INT64_SCHEMA)
+	        .build();
+	    final Schema valueSchemaA = SchemaBuilder.struct()
+	        .field("name", Schema.STRING_SCHEMA)
+	        .build();
+	    final Struct keyA = new Struct(keySchemaA)
+	        .put("id", 1234L);
+	    final Struct valueA = new Struct(valueSchemaA)
+	        .put("name", "cuba");
+	    final SinkRecord recordA = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, valueA, 0);
+	    final SinkRecord recordADeleteWithSchema = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, null, 0);
+
+	    final Schema schemaB = SchemaBuilder.struct()
+	        .field("name", Schema.STRING_SCHEMA)
+	        .field("age", Schema.OPTIONAL_INT32_SCHEMA)
+	        .build();
+	    final Struct valueB = new Struct(schemaB)
+	        .put("name", "cuba")
+	        .put("age", 4);
+	    final SinkRecord recordB = new SinkRecord("dummy", 1, keySchemaA, keyA, schemaB, valueB, 1);
+
+	    assertEquals(Collections.emptyList(), buffer.add(recordA));
+	    assertEquals(Collections.emptyList(), buffer.add(recordA));
+
+	    // delete should not cause a flush (i.e. not treated as a schema change)
+	    assertEquals(Collections.emptyList(), buffer.add(recordADeleteWithSchema));
+
+	    // insert after delete should flush to insure insert isn't lost in batching
+	    assertEquals(Arrays.asList(recordA, recordA, recordADeleteWithSchema), buffer.add(recordA));
+
+	    // schema change should trigger flush
+	    assertEquals(Collections.singletonList(recordA), buffer.add(recordB));
+
+	    // second schema change should trigger flush
+	    assertEquals(Collections.singletonList(recordB), buffer.add(recordA));
+
+	    assertEquals(Collections.singletonList(recordA), buffer.flush());
+  }
+	
+	 @Test
+  public void insertThenDeleteWithSchemaThenInsertInBatchFlush() throws SQLException {
+	    props.put("delete.enabled", true);
+	    props.put("insert.mode", "upsert");
+	    props.put("pk.mode", "record_key");
+	    final JdbcSinkConfig config = new JdbcSinkConfig(props);
+
+	    final String url = sqliteHelper.sqliteUri();
+	    final DatabaseDialect dbDialect = DatabaseDialects.findBestFor(url, config);
+	    final DbStructure dbStructure = new DbStructure(dbDialect);
+
+	    final TableId tableId = new TableId(null, null, "dummy");
+	    final BufferedRecords buffer = new BufferedRecords(config, tableId, dbDialect, dbStructure, sqliteHelper.connection);
+
+	    final Schema keySchemaA = SchemaBuilder.struct()
+	        .field("id", Schema.INT64_SCHEMA)
+	        .build();
+	    final Schema valueSchemaA = SchemaBuilder.struct()
+	        .field("name", Schema.STRING_SCHEMA)
+	        .build();
+	    final Struct keyA = new Struct(keySchemaA)
+	        .put("id", 1234L);
+	    final Struct valueA = new Struct(valueSchemaA)
+	        .put("name", "cuba");
+	    final SinkRecord recordA = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, valueA, 0);
+	    final SinkRecord recordADeleteWithSchema = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, null, 0);
+
+	    final Schema schemaB = SchemaBuilder.struct()
+	        .field("name", Schema.STRING_SCHEMA)
+	        .field("age", Schema.OPTIONAL_INT32_SCHEMA)
+	        .build();
+	    final Struct valueB = new Struct(schemaB)
+	        .put("name", "cuba")
+	        .put("age", 4);
+	    final SinkRecord recordB = new SinkRecord("dummy", 1, keySchemaA, keyA, schemaB, valueB, 1);
+
+	    assertEquals(Collections.emptyList(), buffer.add(recordA));
+	    assertEquals(Collections.emptyList(), buffer.add(recordA));
+
+	    // delete should not cause a flush (i.e. not treated as a schema change)
+	    assertEquals(Collections.emptyList(), buffer.add(recordADeleteWithSchema));
+
+	    // insert after delete should flush to insure insert isn't lost in batching
+	    assertEquals(Arrays.asList(recordA, recordA, recordADeleteWithSchema), buffer.add(recordA));
+
+	    // schema change should trigger flush
+	    assertEquals(Collections.singletonList(recordA), buffer.add(recordB));
+
+	    // second schema change should trigger flush
+	    assertEquals(Collections.singletonList(recordB), buffer.add(recordA));
+
+	    assertEquals(Collections.singletonList(recordA), buffer.flush());
+  }
   
   @Test
   public void testMultipleDeletesBatchedTogether() throws SQLException {
