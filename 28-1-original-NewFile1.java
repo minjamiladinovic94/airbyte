@@ -204,7 +204,9 @@ public class BufferedRecordsTest {
 	        .put("name", "cuba");
 	    final SinkRecord recordA = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, valueA, 0);
 	    final SinkRecord recordADeleteWithSchema = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, null, 0);
-	    final SinkRecord recordADelete = new SinkRecord("dummy", 0, keySchemaA, keyA, null, null, 0);
+		    final SinkRecord recordA = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, valueA, 0);
+	    final SinkRecord recordADeleteWithSchema = new SinkRecord("dummy", 0, keySchemaA, keyA, valueSchemaA, null, 0);
+	    final SinkRecord recordADelete = new SinkRecord("dummy", 0, keySchemaA, keyA, null, null, 0);    final SinkRecord recordADelete = new SinkRecord("dummy", 0, keySchemaA, keyA, null, null, 0);
 
 	    final Schema schemaB = SchemaBuilder.struct()
 	        .field("name", Schema.STRING_SCHEMA)
@@ -218,22 +220,6 @@ public class BufferedRecordsTest {
 	    // test records are batched correctly based on schema equality as records are added
 	    //   (schemaA,schemaA,schemaA,schemaB,schemaA) -> ([schemaA,schemaA,schemaA],[schemaB],[schemaA])
 
-	    assertEquals(Collections.emptyList(), buffer.add(recordA));
-	    assertEquals(Collections.emptyList(), buffer.add(recordA));
-
-	    // delete should not cause a flush (i.e. not treated as a schema change)
-	    assertEquals(Collections.emptyList(), buffer.add(recordADeleteWithSchema));
-
-	    // delete should not cause a flush (i.e. not treated as a schema change)
-	    assertEquals(Collections.emptyList(), buffer.add(recordADelete));
-	    
-	    // schema change and/or previous deletes should trigger flush
-	    assertEquals(Arrays.asList(recordA, recordA, recordADeleteWithSchema, recordADelete), buffer.add(recordB));
-
-	    // second schema change should trigger flush
-	    assertEquals(Collections.singletonList(recordB), buffer.add(recordA));
-
-	    assertEquals(Collections.singletonList(recordA), buffer.flush());
   }
   
   @Test
