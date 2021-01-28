@@ -175,6 +175,34 @@ public class ServerApp {
 
     // hack: upon installation we need to assign a random customerId so that when
     // tracking we can associate all action with the correct anonymous id.
+    
+     public static void main(String[] args) throws Exception {
+    final Configs configs = new EnvConfigs();
+
+    MDC.put(LogHelpers.WORKSPACE_MDC_KEY, LogHelpers.getServerLogsRoot(configs).toString());
+
+    final Path configRoot = configs.getConfigRoot();
+    LOGGER.info("configRoot = " + configRoot);
+
+    LOGGER.info("Creating config repository...");
+    final ConfigRepository configRepository = new ConfigRepository(new DefaultConfigPersistence(configRoot));
+
+    // hack: upon installation we need to assign a random customerId so that when
+    // tracking we can associate all action with the correct anonymous id.
+       
+        public static void main(String[] args) throws Exception {
+    final Configs configs = new EnvConfigs();
+
+    MDC.put(LogHelpers.WORKSPACE_MDC_KEY, LogHelpers.getServerLogsRoot(configs).toString());
+
+    final Path configRoot = configs.getConfigRoot();
+    LOGGER.info("configRoot = " + configRoot);
+
+    LOGGER.info("Creating config repository...");
+    final ConfigRepository configRepository = new ConfigRepository(new DefaultConfigPersistence(configRoot));
+
+    // hack: upon installation we need to assign a random customerId so that when
+    // tracking we can associate all action with the correct anonymous id.
     setCustomerIdIfNotSet(configRepository);
 
     TrackingClientSingleton.initialize(
