@@ -186,6 +186,54 @@ class DefaultJobPersistenceTest {
     assertEquals(JobStatus.PENDING, updated.getStatus());
     assertNotEquals(created.getUpdatedAtInSecond(), updated.getUpdatedAtInSecond());
   }
+  
+    @Test
+  void testResetJob() throws IOException {
+    final long jobId = jobPersistence.enqueueJob(SCOPE, SPEC_JOB_CONFIG).orElseThrow();
+    final int attemptNumber = jobPersistence.createAttempt(jobId, LOG_PATH);
+    final Job created = jobPersistence.getJob(jobId);
+
+    jobPersistence.failAttempt(jobId, attemptNumber);
+    when(timeSupplier.get()).thenReturn(Instant.ofEpochMilli(4242));
+    jobPersistence.resetJob(jobId);
+
+    final Job updated = jobPersistence.getJob(jobId);
+    assertEquals(JobStatus.PENDING, updated.getStatus());
+    assertNotEquals(created.getUpdatedAtInSecond(), updated.getUpdatedAtInSecond());
+  }
+
+  
+    @Test
+  void testResetJob() throws IOException {
+    final long jobId = jobPersistence.enqueueJob(SCOPE, SPEC_JOB_CONFIG).orElseThrow();
+    final int attemptNumber = jobPersistence.createAttempt(jobId, LOG_PATH);
+    final Job created = jobPersistence.getJob(jobId);
+
+    jobPersistence.failAttempt(jobId, attemptNumber);
+    when(timeSupplier.get()).thenReturn(Instant.ofEpochMilli(4242));
+    jobPersistence.resetJob(jobId);
+
+    final Job updated = jobPersistence.getJob(jobId);
+    assertEquals(JobStatus.PENDING, updated.getStatus());
+    assertNotEquals(created.getUpdatedAtInSecond(), updated.getUpdatedAtInSecond());
+  }
+
+  
+    @Test
+  void testResetJob() throws IOException {
+    final long jobId = jobPersistence.enqueueJob(SCOPE, SPEC_JOB_CONFIG).orElseThrow();
+    final int attemptNumber = jobPersistence.createAttempt(jobId, LOG_PATH);
+    final Job created = jobPersistence.getJob(jobId);
+
+    jobPersistence.failAttempt(jobId, attemptNumber);
+    when(timeSupplier.get()).thenReturn(Instant.ofEpochMilli(4242));
+    jobPersistence.resetJob(jobId);
+
+    final Job updated = jobPersistence.getJob(jobId);
+    assertEquals(JobStatus.PENDING, updated.getStatus());
+    assertNotEquals(created.getUpdatedAtInSecond(), updated.getUpdatedAtInSecond());
+  }
+
 
   @Test
   void testResetJobCancelled() throws IOException {
@@ -262,7 +310,34 @@ class DefaultJobPersistenceTest {
         NOW.getEpochSecond());
     assertEquals(expected, actual);
   }
+  @Test
+  void testCreateAttempt() throws IOException {
+    final long jobId = jobPersistence.enqueueJob(SCOPE, SPEC_JOB_CONFIG).orElseThrow();
+    jobPersistence.createAttempt(jobId, LOG_PATH);
 
+    final Job actual = jobPersistence.getJob(jobId);
+    final Job expected = createJob(
+        jobId,
+        SPEC_JOB_CONFIG,
+        JobStatus.RUNNING,
+        Lists.newArrayList(createAttempt(0L, jobId, AttemptStatus.RUNNING, LOG_PATH)),
+        NOW.getEpochSecond());
+    assertEquals(expected, actual);
+  }
+    @Test
+  void testCreateAttempt() throws IOException {
+    final long jobId = jobPersistence.enqueueJob(SCOPE, SPEC_JOB_CONFIG).orElseThrow();
+    jobPersistence.createAttempt(jobId, LOG_PATH);
+
+    final Job actual = jobPersistence.getJob(jobId);
+    final Job expected = createJob(
+        jobId,
+        SPEC_JOB_CONFIG,
+        JobStatus.RUNNING,
+        Lists.newArrayList(createAttempt(0L, jobId, AttemptStatus.RUNNING, LOG_PATH)),
+        NOW.getEpochSecond());
+    assertEquals(expected, actual);
+  }
   @Test
   void testCreateAttemptAttemptId() throws IOException {
     final long jobId = jobPersistence.enqueueJob(SCOPE, SPEC_JOB_CONFIG).orElseThrow();
