@@ -92,6 +92,11 @@ public class ServerApp {
     ServletContextHandler handler = new ServletContextHandler();
 
     Map<String, String> mdc = MDC.getCopyOfContextMap();
+        Server server = new Server(8001);
+
+    ServletContextHandler handler = new ServletContextHandler();
+
+    Map<String, String> mdc = MDC.getCopyOfContextMap();
 
     ConfigurationApiFactory.setSchedulerJobClient(new SpecCachingSchedulerJobClient(jobPersistence, new DefaultJobCreator(jobPersistence)));
     ConfigurationApiFactory.setConfigRepository(configRepository);
